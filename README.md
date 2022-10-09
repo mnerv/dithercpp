@@ -5,6 +5,7 @@ Dithering implementation in C++ with `stb_image` and `glm`.
 ## Requires
 
   - [glm](https://github.com/g-truc/glm)
+  - [asio](https://think-async.com/Asio/)
   - [cmake](https://cmake.org)
 
 ## Development

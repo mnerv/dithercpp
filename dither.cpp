@@ -15,6 +15,8 @@
 #include <random>
 #include <filesystem>
 #include <stdexcept>
+#include <thread>
+#include <chrono>
 
 #include <cstdint>
 #include <cmath>
@@ -26,6 +28,9 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+
+#define ASIO_STANDALONE
+#include "asio.hpp"
 
 namespace nrv {
 class image {
@@ -257,6 +262,34 @@ auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
     nrv::write_png("greyscale.png", img);
     nrv::write_png("quantise.png", quantised);
     nrv::write_png("dithered.png", dithered);
+
+    if (argc < 3) return 0;
+    std::string ip = argv[2];
+
+    asio::error_code ec;
+    asio::io_context io;
+    asio::ip::tcp::endpoint endpoint(asio::ip::make_address(ip, ec), 80);
+    asio::ip::tcp::socket socket(io);
+    socket.connect(endpoint, ec);
+    if (ec) {
+        std::cerr << "Error connecting...\n";
+        return 1;
+    }
+
+    if (socket.is_open()) {
+        auto size = static_cast<std::size_t>(dithered.width() * dithered.height());
+        auto data = new std::uint8_t[size];
+        for (auto i = 0; i < dithered.height(); ++i) {
+            for (auto j = 0; j < dithered.width(); ++j) {
+                data[i * dithered.width() + j] = std::uint8_t(dithered.get_pixel_rgb(j, i).r * 255.0f);
+            }
+        }
+        socket.write_some(asio::buffer(data, size));
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(250ms);
+        delete[] data;
+    }
+
     return 0;
 }
 

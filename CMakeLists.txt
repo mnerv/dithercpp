@@ -8,6 +8,11 @@ target_include_directories(glm INTERFACE "${glm_DIR}")
 if (NOT DEFINED glm_DIR)
     message(FATAL_ERROR "glm_DIR must be set and point to where glm library is. -Dglm_DIR=")
 endif()
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE "${asio_DIR}/include")
+if (NOT DEFINED asio_DIR)
+    message(FATAL_ERROR "asio_DIR must be set and point to where asio library is. -Dasio_DIR=")
+endif()
 
 project(dither)
 set(TARGET_SOURCE_FILES
@@ -20,6 +25,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME}
     stb
     glm
+    asio
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 if (NOT MSVC)
@@ -28,11 +34,16 @@ if (NOT MSVC)
         "-Wextra"
         "-Wconversion"
         "-Wpedantic"
-        "-Wshadow"
+        #"-Wshadow"
         "-Werror"
 
         # glm warnings
         "-Wno-deprecated-volatile"
+
+        # asio
+        "-Wno-sign-conversion"
+        "-Wno-shorten-64-to-32"
+        "-Wno-implicit-int-conversion"
     )
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE
