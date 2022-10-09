@@ -32,8 +32,6 @@ class image {
   public:
     image(std::filesystem::path const& filename) {
         using namespace std::string_literals;
-        if (!std::filesystem::exists(filename))
-            throw std::runtime_error("nrv::image: file: \""s + filename.string() + "\" does not exists"s);
         auto data = stbi_load(filename.c_str(), &m_width, &m_height, &m_channels, 0);
         if (data == nullptr)
             throw std::runtime_error("nrv::image: error reading file: \""s + filename.string() + "\""s);
@@ -88,8 +86,8 @@ class image {
         };
     }
     auto flipv() -> void {
-        for (std::int32_t i = 0; i < m_height / 2; i++) {
-            for (std::int32_t j = 0; j < m_width; j++) {
+        for (auto i = 0; i < m_height / 2; i++) {
+            for (auto j = 0; j < m_width; j++) {
                 auto const a = get_pixel_rgba(j, i);
                 auto const b = get_pixel_rgba(j, m_height - 1 - i);
                 set_pixel(j, i, b);
@@ -98,8 +96,8 @@ class image {
         }
     }
     auto fliph() -> void {
-       for (int32_t i = 0; i < m_height; i++) {
-            for (int32_t j = 0; j < m_width / 2; j++) {
+       for (auto i = 0; i < m_height; i++) {
+            for (auto j = 0; j < m_width / 2; j++) {
                 const auto a = get_pixel_rgba(j, i);
                 const auto b = get_pixel_rgba(m_width - 1 - j, i);
                 set_pixel(j, i, b);
@@ -234,6 +232,11 @@ auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
     }
 
     std::string filename = argv[1];
+    if (!std::filesystem::exists(filename)) {
+        std::cerr << "file: \"" << filename << "\" does not exists\n";
+        return 1;
+    }
+
     nrv::image img{filename};
     nrv::image quantised{img.width(), img.height()};
     nrv::image dithered{img.width(), img.height()};
