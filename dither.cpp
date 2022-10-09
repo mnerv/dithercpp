@@ -187,10 +187,41 @@ auto dither_floyd_steinberg(nrv::image const& source, nrv::image& destination, s
             destination.set_pixel(pos.x + offset.x, pos.y + offset.y, {k.r, k.g, k.b, 1.0f});
         };
 
+        // Applies the kernel
         update_pixel({+1,  0}, 7.0f / 16.0f);
         update_pixel({-1, +1}, 3.0f / 16.0f);
         update_pixel({ 0, +1}, 5.0f / 16.0f);
         update_pixel({+1, +1}, 1.0f / 16.0f);
+    });
+}
+
+auto dither_minimized_average_error(nrv::image const& source, nrv::image& out, std::function<glm::vec4(glm::vec4 const& pixel)> const& quantise_fn) {
+    nrv::render_transform(source, out, [](glm::vec4 const& pixel) { return pixel; });
+
+    nrv::render_img(out, [&](auto const& pos, auto const& pixel) {
+        auto qp = quantise_fn(pixel);
+        auto err = pixel - qp;
+        out.set_pixel(pos.x, pos.y, qp);
+
+        auto update_pixel = [&](glm::i32vec2 const& offset, float const& err_bias) {
+            glm::vec4 const p = out.get_pixel_rgba(pos.x + offset.x, pos.y + offset.y);
+            auto const k = p + err * err_bias;
+            out.set_pixel(pos.x + offset.x, pos.y + offset.y, {k.r, k.g, k.b, 1.0f});
+        };
+
+        // Applies the kernel
+        update_pixel({+1,  0}, 7.0f / 48.0f);
+        update_pixel({+2,  0}, 5.0f / 48.0f);
+        update_pixel({-2, +1}, 3.0f / 48.0f);
+        update_pixel({-1, +1}, 5.0f / 48.0f);
+        update_pixel({ 0, +1}, 7.0f / 48.0f);
+        update_pixel({+1, +1}, 5.0f / 48.0f);
+        update_pixel({+2, +1}, 3.0f / 48.0f);
+        update_pixel({-2, +2}, 1.0f / 48.0f);
+        update_pixel({-1, +2}, 3.0f / 48.0f);
+        update_pixel({ 0, +2}, 5.0f / 48.0f);
+        update_pixel({+1, +2}, 3.0f / 48.0f);
+        update_pixel({+2, +2}, 1.0f / 48.0f);
     });
 }
 
@@ -218,6 +249,7 @@ auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
     };
     nrv::render_transform(img, quantised, quantise_greyscale_1bit);
     dither_floyd_steinberg(img, dithered, quantise_greyscale_1bit);
+    //dither_minimized_average_error(img, dithered, quantise_greyscale_1bit);
 
     nrv::write_png("greyscale.png", img);
     nrv::write_png("quantise.png", quantised);
