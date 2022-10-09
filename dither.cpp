@@ -14,6 +14,7 @@
 #include <functional>
 #include <random>
 #include <filesystem>
+#include <stdexcept>
 
 #include <cstdint>
 #include <cmath>
@@ -30,7 +31,12 @@ namespace nrv {
 class image {
   public:
     image(std::filesystem::path const& filename) {
+        using namespace std::string_literals;
+        if (!std::filesystem::exists(filename))
+            throw std::runtime_error("nrv::image: file: \""s + filename.string() + "\" does not exists"s);
         auto data = stbi_load(filename.c_str(), &m_width, &m_height, &m_channels, 0);
+        if (data == nullptr)
+            throw std::runtime_error("nrv::image: error reading file: \""s + filename.string() + "\""s);
         m_size = static_cast<std::size_t>(m_width * m_height * m_channels);
         m_buffer = new float[m_size];
         std::transform(data, data + m_size, m_buffer, [](auto const& pixel) {
@@ -136,61 +142,6 @@ auto write_png(std::string const& filename, image const& img) -> void {
     delete[] data;
 }
 
-auto line(std::int32_t x0, std::int32_t y0, std::int32_t x1, std::int32_t y1, image& img, glm::vec3 const& color) -> void {
-    bool steep = false;
-    if (std::abs(x0 - x1) < std::abs(y0 - y1)) {
-        std::swap(x0, y0);
-        std::swap(x1, y1);
-        steep = true;
-    }
-    if (x0 > x1) {
-        std::swap(x0, x1);
-        std::swap(y0, y1);
-    }
-
-    std::int32_t dx = x1 - x0;
-    std::int32_t dy = y1 - y0;
-    std::int32_t derror2 = std::abs(dy) * 2;
-    std::int32_t error2  = 0;
-    std::int32_t y = y0;
-    for (std::int32_t x = x0; x <= x1; x++) {
-        if (steep)
-            img.set_pixel(y, x, color);
-        else
-            img.set_pixel(x, y, color);
-        error2 += derror2;
-        if (error2 > dx) {
-            y += (y1 > y0 ? 1 : -1);
-            error2 -= dx * 2;
-        }
-    }
-}
-auto line(glm::i32vec2 const& t0, glm::i32vec2 const& t1, image& img, glm::vec3 const& color) -> void {
-    line(t0.x, t0.y, t1.x, t1.y, img, color);
-}
-
-auto triangle(glm::i32vec2 t0, glm::i32vec2 t1, glm::i32vec2 t2, image& img, [[maybe_unused]]glm::vec3 const& color) -> void {
-    if (t0.y == t1.y && t0.y == t2.y) return;
-    if (t0.y > t1.y) std::swap(t0, t1);
-    if (t0.y > t2.y) std::swap(t0, t2);
-    if (t1.y > t2.y) std::swap(t1, t2);
-    std::int32_t total_height = t2.y - t0.y;
-    for (std::int32_t i = 0; i < total_height; i++) {
-        bool second_half = i > t1.y - t0.y || t1.y == t0.y;
-        auto segement_height = second_half ? t2.y - t1.y : t1.y - t0.y;
-        float alpha = float(i) / float(total_height);
-        float beta  = float(i - (second_half ? t1.y - t0.y : 0)) / float(segement_height);
-        glm::vec2 A = glm::vec2(t0) + glm::vec2(t2 - t0) * alpha;
-        glm::vec2 B = second_half ?
-                      glm::vec2(t1) + glm::vec2(t2 - t1) * beta
-                      :
-                      glm::vec2(t0) + glm::vec2(t1 - t0) * beta;
-        if (A.x > B.x) std::swap(A, B);
-        for (float j = A.x; j <= B.x; j++)
-            img.set_pixel(std::int32_t(j), t0.y + i, color);
-    }
-}
-
 using render_fn_t     = std::function<glm::vec4(glm::i32vec2 const& pos)>;
 using sample_fn_t     = std::function<glm::vec4(glm::i32vec2 const& pos, glm::vec4 const& pixel)>;
 using transform_fn_t  = std::function<glm::vec4(glm::vec4 const& pixel)>;
@@ -244,7 +195,15 @@ auto dither_floyd_steinberg(nrv::image const& source, nrv::image& destination, s
 }
 
 auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
-    nrv::image img{"/Users/k/Downloads/doraemon.jpg"};
+    if (argc < 2) {
+        std::cerr << "error no file given!\n\n";
+        std::cerr << "usage: " << argv[0] << " [filename]\n";
+        std::cerr << "    [filename] - path to image file, supported (jpg, png, or stb_image supported type)\n";
+        return 1;
+    }
+
+    std::string filename = argv[1];
+    nrv::image img{filename};
     nrv::image quantised{img.width(), img.height()};
     nrv::image dithered{img.width(), img.height()};
 

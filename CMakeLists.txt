@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(dither VERSION 0.0.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(stb)
+add_subdirectory(deps/stb)
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE "${glm_DIR}")
 if (NOT DEFINED glm_DIR)
