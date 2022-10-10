@@ -121,7 +121,7 @@ class image {
     auto height()   const -> std::int32_t { return m_height; }
     auto channels() const -> std::int32_t { return m_channels; }
     auto size()     const -> std::size_t  { return m_size; }
-    auto buffer()   const -> float const* { return m_buffer; }
+    auto buffer()   const -> float* { return m_buffer; }
 
   private:
     std::int32_t m_width;
@@ -177,7 +177,7 @@ auto render_transform(image const& source, image& output, sample_fn_t const& fn)
 }
 
 auto dither_floyd_steinberg(nrv::image const& source, nrv::image& destination, std::function<glm::vec4(glm::vec4 const& pixel)> const& quantise_fn) {
-    nrv::render_transform(source, destination, [](glm::vec4 const& pixel) { return pixel; });
+    std::memcpy(destination.buffer(), source.buffer(), source.size() * sizeof(float));
 
     nrv::render_img(destination, [&](auto const& pos, auto const& pixel) {
         auto qp = quantise_fn(pixel);
@@ -199,8 +199,7 @@ auto dither_floyd_steinberg(nrv::image const& source, nrv::image& destination, s
 }
 
 auto dither_minimized_average_error(nrv::image const& source, nrv::image& out, std::function<glm::vec4(glm::vec4 const& pixel)> const& quantise_fn) {
-    nrv::render_transform(source, out, [](glm::vec4 const& pixel) { return pixel; });
-
+    std::memcpy(out.buffer(), source.buffer(), source.size() * sizeof(float));
     nrv::render_img(out, [&](auto const& pos, auto const& pixel) {
         auto qp = quantise_fn(pixel);
         auto err = pixel - qp;
@@ -243,8 +242,8 @@ auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
     }
 
     nrv::image img{filename};
-    nrv::image quantised{img.width(), img.height()};
-    nrv::image dithered{img.width(), img.height()};
+    nrv::image quantised{img.width(), img.height(), img.channels()};
+    nrv::image dithered{img.width(), img.height(), img.channels()};
 
     auto rgb_to_greyscale = [](glm::i32vec2 const&, glm::vec4 const& pixel) {
         float greyscale = 0.2162f * pixel.r + 0.7152f * pixel.g + 0.0722f * pixel.b;

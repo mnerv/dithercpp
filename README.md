@@ -4,17 +4,16 @@ Dithering implementation in C++ with `stb_image` and `glm`.
 
 ## Requires
 
-  - [glm](https://github.com/g-truc/glm)
-  - [asio](https://think-async.com/Asio/)
   - [cmake](https://cmake.org)
+  - [vcpkg](https://vcpkg.io/en/index.html)
 
 ## Development
 
 Setup the development environment with `cmake`.
 
 ```
-cmake -S . -Bbuild -Dglm_DIR={GLM_SDK} -GNinja
+cmake -S . -Bbuild -GNinja -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
 ```
 
-`{GLM_SDK}`: This is the path where glm is installed on your system.
+`${VCPKG_ROOT}`: Follow their installation instruction and set this variable so that it points to where vcpkg is installed.
 
