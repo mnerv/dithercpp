@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.21)
 project(dither VERSION 0.0.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
