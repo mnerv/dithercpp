@@ -5,6 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(deps/stb)
 find_package(glm REQUIRED)
 find_package(asio REQUIRED)
+find_package(Threads REQUIRED)
 
 project(dither)
 set(TARGET_SOURCE_FILES
@@ -18,6 +19,7 @@ target_link_libraries(${PROJECT_NAME}
     stb
     glm::glm
     asio::asio
+    Threads::Threads
 )
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 if (NOT MSVC)

@@ -168,7 +168,7 @@ auto render_transform(image const& source, image& output, transform_fn_t const& 
     for (std::int32_t i = 0; i < source.height(); i++)
         for (std::int32_t j = 0; j < source.width(); j++)
             output.set_pixel(j, i, fn(source.get_pixel_rgba(j, i)));
-};
+}
 auto render_transform(image const& source, image& output, sample_fn_t const& fn) {
     for (std::int32_t i = 0; i < source.height(); i++)
         for (std::int32_t j = 0; j < source.width(); j++)
