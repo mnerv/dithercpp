@@ -1,4 +1,6 @@
-# Floyd–Steinberg dithering
+# Post Prcessing in C++
+
+## Floyd–Steinberg dithering
 
 Dithering implementation in C++ with `stb_image` and `glm`.
 
