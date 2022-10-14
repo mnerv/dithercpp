@@ -24,6 +24,13 @@ class image {
     image(std::int32_t const& width, std::int32_t const& height, std::int32_t const& channels = 3);
     ~image();
 
+    auto width()    const -> std::int32_t { return m_width; }
+    auto height()   const -> std::int32_t { return m_height; }
+    auto channels() const -> std::int32_t { return m_channels; }
+    auto size()     const -> std::size_t  { return m_size; }
+    auto buffer()   const -> float* { return m_buffer; }
+
+  public:
     auto set_pixel(std::int32_t const& x, std::int32_t const& y, glm::vec3 const& color) -> void {
         if (x < 0 || x > m_width - 1 || y < 0 || y > m_height - 1) return;
         auto const index = (y * m_channels) * m_width + (x * m_channels);
@@ -58,6 +65,8 @@ class image {
             alpha
         };
     }
+
+  public:
     auto flipv() -> void {
         for (auto i = 0; i < m_height / 2; i++) {
             for (auto j = 0; j < m_width; j++) {
@@ -84,12 +93,6 @@ class image {
             return value / max;
         });
     }
-
-    auto width()    const -> std::int32_t { return m_width; }
-    auto height()   const -> std::int32_t { return m_height; }
-    auto channels() const -> std::int32_t { return m_channels; }
-    auto size()     const -> std::size_t  { return m_size; }
-    auto buffer()   const -> float* { return m_buffer; }
 
   private:
     std::int32_t m_width;
