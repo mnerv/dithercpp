@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <string>
 
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"
@@ -28,7 +29,8 @@ class image {
     auto height()   const -> std::int32_t { return m_height; }
     auto channels() const -> std::int32_t { return m_channels; }
     auto size()     const -> std::size_t  { return m_size; }
-    auto buffer()   const -> float* { return m_buffer; }
+    auto buffer()   const -> float*       { return m_buffer; }
+    auto str()      const -> std::string;
 
   public:
     auto set_pixel(std::int32_t const& x, std::int32_t const& y, glm::vec3 const& color) -> void {
@@ -95,6 +97,7 @@ class image {
     }
 
   private:
+    std::filesystem::path m_filename{""};
     std::int32_t m_width;
     std::int32_t m_height;
     std::int32_t m_channels;

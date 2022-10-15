@@ -14,7 +14,7 @@
 #include "stb_image_write.h"
 
 namespace nrv {
-image::image(std::filesystem::path const& filename) {
+image::image(std::filesystem::path const& filename) : m_filename(filename) {
     using namespace std::string_literals;
     auto data = stbi_load(filename.c_str(), &m_width, &m_height, &m_channels, 0);
     if (data == nullptr)
@@ -33,6 +33,16 @@ image::image(std::int32_t const& width, std::int32_t const& height, std::int32_t
     , m_buffer(new float[m_size]) {}
 image::~image() {
     delete[] m_buffer;
+}
+auto image::str()  const -> std::string {
+    std::string str{"nrv::image{"};
+    str += "file: \""   + m_filename.string()        + "\", ";
+    str += "width: "    + std::to_string(m_width)    + ", ";
+    str += "height: "   + std::to_string(m_height)   + ", ";
+    str += "channels: " + std::to_string(m_channels) + ", ";
+    str += "size: "     + std::to_string(m_size);
+    str += "}";
+    return str;
 }
 
 auto write_png(std::string const& filename, image const& img) -> void {
