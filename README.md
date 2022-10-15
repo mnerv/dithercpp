@@ -1,10 +1,6 @@
-# Post Prcessing in C++
+# Image Prcessing in C++
 
-Post processing images with C++. The goal is to implement cool algorithms that process images like the Floyd-Stenberg dithering.
-
-## Floyd–Steinberg dithering
-
-Dithering implementation in C++ with `stb_image` and `glm`.
+The goal is to implement cool algorithms that process images.
 
 ## Requirements
 
