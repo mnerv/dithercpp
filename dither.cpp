@@ -108,9 +108,9 @@ auto main([[maybe_unused]]int argc, [[maybe_unused]]char const* argv[]) -> int {
     dither_floyd_steinberg(img, dithered, quantise_greyscale_1bit);
     //dither_minimized_average_error(img, dithered, quantise_greyscale_1bit);
 
-    nrv::write_png("greyscale.png", img);
-    nrv::write_png("quantise.png", quantised);
-    nrv::write_png("dithered.png", dithered);
+    nrv::write_png("greyscale_out.png", img);
+    nrv::write_png("quantise_out.png", quantised);
+    nrv::write_png("dithered_out.png", dithered);
 
     if (argc < 3) return 0;
     std::string ip = argv[2];

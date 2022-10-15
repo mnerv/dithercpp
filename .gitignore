@@ -1,7 +1,5 @@
 # Output
-greyscale.png
-quantise.png
-dithered.png
+*_out.png
 
 # CMake
 build*
