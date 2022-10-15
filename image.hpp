@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <string>
+#include <functional>
 
 #include "glm/glm.hpp"
 #include "glm/vec3.hpp"

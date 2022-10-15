@@ -16,7 +16,7 @@
 namespace nrv {
 image::image(std::filesystem::path const& filename) : m_filename(filename) {
     using namespace std::string_literals;
-    auto data = stbi_load(filename.c_str(), &m_width, &m_height, &m_channels, 0);
+    auto data = stbi_load(m_filename.string().c_str(), &m_width, &m_height, &m_channels, 0);
     if (data == nullptr)
         throw std::runtime_error("nrv::image: error reading file: \""s + filename.string() + "\""s);
     m_size = static_cast<std::size_t>(m_width * m_height * m_channels);
