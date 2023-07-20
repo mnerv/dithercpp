@@ -2,6 +2,10 @@
 
 The goal is to implement cool algorithms that process images.
 
+Example output from dithering application.
+
+![A dithered image. The image shows Sam from Death Stranding standing.](./deps/preview_dithering.png)
+
 ## Requirements
 
   - [cmake](https://cmake.org)
